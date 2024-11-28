@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Management</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="text-center mb-4">
+        <h1>Product Management</h1>
+        <p class="lead">Manage your products easily</p>
+      </div>
+      <div class="d-flex justify-content-center mb-4">
+        <button class="btn btn-primary mr-2" onclick="getProducts()">
+          Get Products
+        </button>
+        <button class="btn btn-secondary mr-2" onclick="getProductByID()">
+          Get Product By ID
+        </button>
+        <button class="btn btn-success" onclick="login()">Login</button>
+      </div>
+      <div id="divProducts" class="row"></div>
+    </div>
+
+    <script>
+      const login = async () => {
+        const response = await fetch("http://localhost:5269/api/users/login", {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            email: "oguzhankandemir11@gmail.com",
+            password: "123456",
+          }),
+        });
+        const result = await response.json();
+        localStorage.setItem("token", JSON.stringify(result.token));
+      };
+
+      const getProducts = async () => {
+        const response = await fetch("http://localhost:5269/api/products");
+        const products = await response.json();
+        displayProducts(products);
+      };
+
+      const getProductByID = async () => {
+        const token = JSON.parse(localStorage.getItem("token"));
+        const response = await fetch("http://localhost:5269/api/products/4", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const product = await response.json();
+        displayProduct(product);
+      };
+
+      const displayProduct = (product) => {
+        const parent = document.getElementById("divProducts");
+        parent.innerHTML = `
+          <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">${product.productName}</h5>
+                <p class="card-text">$${product.price}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      };
+
+      const displayProducts = (products) => {
+        const parent = document.getElementById("divProducts");
+        parent.innerHTML = "";
+        products.forEach((prd) => {
+          parent.innerHTML += `
+          <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">${prd.productName}</h5>
+                <p class="card-text">$${prd.price}</p>
+              </div>
+            </div>
+          </div>
+          `;
+        });
+      };
+    </script>
+  </body>
+</html>
